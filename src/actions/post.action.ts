@@ -20,3 +20,4 @@ export const createPost = async (content: string, image: string) => {
     return { success: false, error: "Failed to create post" };
   }
 };
+
