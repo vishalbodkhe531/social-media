@@ -1,4 +1,5 @@
 import CreatePost from "@/components/CreatePost";
+import WhoToFollow from "@/components/WhoToFollow";
 import { currentUser } from "@clerk/nextjs/server";
 import React from "react";
 
@@ -19,7 +20,7 @@ const page = async () => {
         </div>
 
         <div className="hidden lg:block lg:col-span-4 sticky top-20">
-          {/* <WhoToFollow /> */}
+          <WhoToFollow />
         </div>
       </div>
     </>
