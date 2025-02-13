@@ -1,10 +1,20 @@
+import { getPost } from "@/actions/post.action";
+import { getDbUserId } from "@/actions/user.action";
 import CreatePost from "@/components/CreatePost";
+import PostCard from "@/components/PostCard";
 import WhoToFollow from "@/components/WhoToFollow";
 import { currentUser } from "@clerk/nextjs/server";
 import React from "react";
 
 const page = async () => {
   const user = await currentUser();
+  const allPosts = await getPost();
+  const dbUserId = await getDbUserId();
+
+  console.log(allPosts);
+
+  // const { dbUserId } = getDbUserId();
+
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
@@ -12,10 +22,10 @@ const page = async () => {
           {user ? <CreatePost /> : null}
 
           <div className="space-y-6">
-            {/* {posts.map((post) => (
+            {allPosts.map((post) => (
               <PostCard key={post.id} post={post} dbUserId={dbUserId} />
-            ))} */}
-            All the Post here
+            ))}
+            {/* All the Post here */}
           </div>
         </div>
 
