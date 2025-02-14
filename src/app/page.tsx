@@ -11,10 +11,6 @@ const page = async () => {
   const allPosts = await getPost();
   const dbUserId = await getDbUserId();
 
-  console.log(allPosts);
-
-  // const { dbUserId } = getDbUserId();
-
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">

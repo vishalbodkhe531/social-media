@@ -7,7 +7,12 @@ import { Avatar, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { SignInButton, useUser } from "@clerk/nextjs";
-import { HeartIcon, MessageCircleIcon } from "lucide-react";
+import {
+  HeartIcon,
+  LogInIcon,
+  MessageCircleIcon,
+  SendIcon,
+} from "lucide-react";
 import {
   createComment,
   deletePost,
@@ -16,6 +21,7 @@ import {
 } from "@/actions/post.action";
 import toast from "react-hot-toast";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
+import { Textarea } from "./ui/textarea";
 
 type Posts = Awaited<ReturnType<typeof getPost>>;
 type Post = Posts[number];
@@ -26,22 +32,24 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
   const [isCommenting, setIsCommenting] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [hasLike, setHasLike] = useState(
+  const [hasLiked, setHasLiked] = useState(
     post.like.some((like) => like.userId === dbUserId)
   );
   const [optimisticLikes, setOptimisticLikes] = useState(post._count.like);
+
+  const [showComments, setShowComments] = useState(false);
 
   const handleLike = async () => {
     if (isLiking) return;
 
     try {
       setIsLiking(true);
-      setHasLike((prev) => !prev);
-      setOptimisticLikes((prev) => prev + (hasLike ? -1 : 1));
+      setHasLiked((prev) => !prev);
+      setOptimisticLikes((prev) => prev + (hasLiked ? -1 : 1));
       await toggleLike(post.id);
     } catch (error) {
       setOptimisticLikes(post._count.like);
-      setHasLike(post.like.some((like) => like.userId === dbUserId));
+      setHasLiked(post.like.some((like) => like.userId === dbUserId));
     } finally {
       setIsLiking(post.like.some((like) => like.userId === dbUserId));
     }
@@ -124,7 +132,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
           </div>
 
           {/* POST IMAGE */}
-          {/* {post.image && (
+          {post.image && (
             <div className="rounded-lg overflow-hidden">
               <img
                 src={post.image}
@@ -132,23 +140,27 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                 className="w-full h-auto object-cover"
               />
             </div>
-          )} */}
-          <img src="" alt="post img" />
+          )}
 
           {/* LIKE & COMMENT BUTTONS */}
           <div className="flex items-center pt-2 space-x-4">
-            {true ? (
+            {user ? (
               <Button
                 variant="ghost"
                 size="sm"
-                className={`text-muted-foreground gap-2 `}
+                className={`text-muted-foreground gap-2 ${
+                  hasLiked
+                    ? "text-red-500 hover:text-red-600"
+                    : "hover:text-red-500"
+                }`}
+                onClick={handleLike}
               >
-                {/* {hasLiked ? (
+                {hasLiked ? (
                   <HeartIcon className="size-5 fill-current" />
                 ) : (
                   <HeartIcon className="size-5" />
-                )} */}
-                {/* <span>{optimisticLikes}</span> */}
+                )}
+                <span>{optimisticLikes}</span>
               </Button>
             ) : (
               <SignInButton mode="modal">
@@ -158,7 +170,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                   className="text-muted-foreground gap-2"
                 >
                   <HeartIcon className="size-5" />
-                  <span>{"optimisticLikes"}</span>
+                  <span>{optimisticLikes}</span>
                 </Button>
               </SignInButton>
             )}
@@ -167,22 +179,27 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
               variant="ghost"
               size="sm"
               className="text-muted-foreground gap-2 hover:text-blue-500"
+              onClick={() => setShowComments((prev) => !prev)}
             >
-              <MessageCircleIcon className={`size-5 `} />
-              {/* <span>{post.comments.length}</span> */}
-              comments
+              <MessageCircleIcon
+                className={`size-5 ${
+                  showComments ? "fill-blue-500 text-blue-500" : ""
+                }`}
+              />
+              <span>{post.comments.length}</span>
             </Button>
           </div>
 
           {/* COMMENTS SECTION */}
-          {/* {true && (
+          {showComments && (
             <div className="space-y-4 pt-4 border-t">
               <div className="space-y-4">
+                {/* DISPLAY COMMENTS */}
                 {post.comments.map((comment) => (
                   <div key={comment.id} className="flex space-x-3">
                     <Avatar className="size-8 flex-shrink-0">
                       <AvatarImage
-                        src={comment.author.image ?? "/avatar.png"}
+                        src={comment.author.img ?? "/avatar.png"}
                       />
                     </Avatar>
                     <div className="flex-1 min-w-0">
@@ -191,7 +208,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                           {comment.author.name}
                         </span>
                         <span className="text-sm text-muted-foreground">
-                          @{comment.author.username}
+                          @{comment.author.name}
                         </span>
                         <span className="text-sm text-muted-foreground">·</span>
                         <span className="text-sm text-muted-foreground">
@@ -246,7 +263,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                 </div>
               )}
             </div>
-          )} */}
+          )}
         </div>
       </CardContent>
     </Card>

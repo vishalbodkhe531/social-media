@@ -1,8 +1,7 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { getDbUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
-import toast from "react-hot-toast";
+import { getDbUserId } from "./user.action";
 
 export const createPost = async (content: string, image: string) => {
   try {
@@ -87,7 +86,7 @@ export const toggleLike = async (postId: string) => {
     });
 
     const post = await prisma.post.findUnique({
-      where: { id: userId },
+      where: { id: postId },
       select: { authorId: true },
     });
 
@@ -95,7 +94,7 @@ export const toggleLike = async (postId: string) => {
 
     if (existingLike) {
       //unlike
-      await prisma.like.findUnique({
+      await prisma.like.delete({
         where: {
           userId_postId: {
             userId,
