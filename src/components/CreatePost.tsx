@@ -23,7 +23,7 @@ const CreatePost = () => {
     setIsPosting(true);
     try {
       const res = await createPost(content, imageUrl);
-      if (res.success) {
+      if (res?.success) {
         setContent("");
         setImageUrl("");
         setShowImageUpload(false);
